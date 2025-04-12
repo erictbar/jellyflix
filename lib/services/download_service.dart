@@ -12,7 +12,7 @@ import 'package:tentacle/tentacle.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:async/async.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
+import 'package:path/path.dart' show dirname, join;
 import 'package:jellyflix/models/download_metadata.dart';
 import 'package:jellyflix/navigation/app_router.dart';
 import 'package:jellyflix/providers/scaffold_key.dart';
@@ -514,7 +514,25 @@ class DownloadService {
   }
 
   static Future<String> getDownloadDirectory() async {
-    return "E:${Platform.pathSeparator}Media${Platform.pathSeparator}jellyflix${Platform.pathSeparator}downloads";
+    try {
+      // Get the executable directory
+      final exePath = Platform.resolvedExecutable;
+      final exeDir = dirname(exePath);
+      final configFile = File(join(exeDir, 'config.txt'));
+
+      if (await configFile.exists()) {
+        final contents = await configFile.readAsLines();
+        for (var line in contents) {
+          if (line.startsWith('DOWNLOAD_DIR=')) {
+            return line.substring('DOWNLOAD_DIR='.length);
+          }
+        }
+      }
+    } catch (e) {
+      print('Error reading config file: $e');
+    }
+    // Fallback to default directory if config file not found or invalid
+    return 'E:${Platform.pathSeparator}Media${Platform.pathSeparator}jellyflix${Platform.pathSeparator}downloads';
   }
 
   Future<void> downloadTranscodedStream(String streamUrl) async {
