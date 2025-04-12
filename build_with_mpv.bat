@@ -11,3 +11,6 @@ copy "mpv_backup\mpv-dev-x86_64-20250225-git-66659a4.7z" "build\windows\x64\"
 
 echo Building Windows application...
 flutter build windows
+
+echo Deploying
+.\deploy.bat
