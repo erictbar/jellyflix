@@ -14,16 +14,8 @@ dependencies:
     sdk: flutter
   tentacle:
     git: https://github.com/TentacleOrg/Tentacle.git
-  media_kit:
-    git:
-      url: https://github.com/jellyflix-app/media-kit.git
-      ref: main
-      path: ./media_kit
-  media_kit_video:
-    git:
-      url: https://github.com/jellyflix-app/media-kit.git
-      ref: main
-      path: ./media_kit_video
+  media_kit: 1.1.10     # Use a version known to work with MPV 0.37.0
+  media_kit_video: 1.2.4 # And its matching video component
   media_kit_libs_video:
     git:
       url: https://github.com/jellyflix-app/media-kit.git

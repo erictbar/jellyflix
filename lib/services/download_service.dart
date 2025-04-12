@@ -514,9 +514,7 @@ class DownloadService {
   }
 
   static Future<String> getDownloadDirectory() async {
-    // Get download directory
-    final Directory appDocumentsDir = await getApplicationDocumentsDirectory();
-    return "${appDocumentsDir.path}${Platform.pathSeparator}jellyflix${Platform.pathSeparator}downloads";
+    return "E:${Platform.pathSeparator}Media${Platform.pathSeparator}jellyflix${Platform.pathSeparator}downloads";
   }
 
   Future<void> downloadTranscodedStream(String streamUrl) async {
