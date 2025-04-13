@@ -10,7 +10,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/providers/router_provider.dart';
 import 'package:jellyflix/providers/scaffold_key.dart';
 import 'package:jellyflix/services/database_service.dart';
-import 'package:jellyflix/services/download_service.dart';  // Add this import
+import 'package:jellyflix/services/download_service.dart';
+import 'package:jellyflix/services/secure_storage_service.dart';  // Add this import
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

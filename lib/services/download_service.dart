@@ -18,6 +18,8 @@ import 'package:jellyflix/navigation/app_router.dart';
 import 'package:jellyflix/providers/scaffold_key.dart';
 import 'package:jellyflix/services/api_service.dart';
 import 'package:jellyflix/services/connectivity_service.dart';
+import 'package:jellyflix/services/database_service.dart';  // Add this import
+import 'package:jellyflix/services/secure_storage_service.dart';  // Add this import
 
 class DownloadService {
   static final Map<String, DownloadService> _instances = {};
