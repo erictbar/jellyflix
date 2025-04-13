@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:jellyflix/services/api_service.dart';
 import 'package:jellyflix/services/player_helper.dart';
+import 'package:jellyflix/services/download_service.dart';  // Add this import
 import 'package:media_kit/media_kit.dart';
 import 'package:tentacle/tentacle.dart';
 
@@ -168,6 +169,13 @@ class StreamPlayerHelper extends PlayerHelper {
   @override
   Future<void> initStream(int startTimeTicks, Timer? playbackTimer) async {
     String streamUrl = _apiService.getStreamUrl(playbackInfo);
+    
+    // Add check for downloaded content
+    if (streamUrl.startsWith('file://')) {
+      var downloadDir = await DownloadService.getDownloadDirectory();
+      streamUrl = streamUrl.replaceAll('~\\Documents', downloadDir);
+    }
+    
     await player.open(Media(streamUrl,
         httpHeaders: _apiService.headers,
         start: Duration(microseconds: startTimeTicks ~/ 10)));

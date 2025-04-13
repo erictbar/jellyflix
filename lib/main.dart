@@ -10,24 +10,31 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/providers/router_provider.dart';
 import 'package:jellyflix/providers/scaffold_key.dart';
 import 'package:jellyflix/services/database_service.dart';
+import 'package:jellyflix/services/download_service.dart';  // Add this import
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize database
+  await DatabaseService.initialize();
+  
+  // Set up download directory from config or create default
+  var settings = DatabaseService('settings', SecureStorageService());
+  if (settings.get('download_directory') == null) {
+    await settings.put('download_directory', 
+      'E:${Platform.pathSeparator}Media${Platform.pathSeparator}jellyflix${Platform.pathSeparator}downloads');
+  }
+
   if (Platform.isAndroid || Platform.isIOS) {
     await FlutterDownloader.initialize(
         debug: kDebugMode ? true : false,
-        ignoreSsl:
-            true // option: set to false to disable working with http links (default: false)
-        );
+        ignoreSsl: true
+    );
   }
-  await DatabaseService.initialize();
-
-  // await rootBundle.load('assets/fonts/NotoSans-Regular.ttf');
-  // // save to file
-  // var fileName = "NotoSans-Regular.ttf";
 
   // Necessary initialization for package:media_kit.
   MediaKit.ensureInitialized();
+  
   runApp(ProviderScope(
     child: Shortcuts(shortcuts: <LogicalKeySet, Intent>{
       LogicalKeySet(LogicalKeyboardKey.select): const ActivateIntent(),

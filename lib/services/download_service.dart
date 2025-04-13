@@ -515,7 +515,14 @@ class DownloadService {
 
   static Future<String> getDownloadDirectory() async {
     try {
-      // Get the executable directory
+      // First check settings in database
+      var settings = DatabaseService('settings', SecureStorageService());
+      var savedPath = settings.get('download_directory');
+      if (savedPath != null) {
+        return savedPath;
+      }
+
+      // If not in database, check config file
       final exePath = Platform.resolvedExecutable;
       final exeDir = dirname(exePath);
       final configFile = File(join(exeDir, 'config.txt'));
@@ -524,15 +531,25 @@ class DownloadService {
         final contents = await configFile.readAsLines();
         for (var line in contents) {
           if (line.startsWith('DOWNLOAD_DIR=')) {
-            return line.substring('DOWNLOAD_DIR='.length);
+            var path = line.substring('DOWNLOAD_DIR='.length);
+            // Save to database for future use
+            await settings.put('download_directory', path);
+            return path;
           }
         }
       }
     } catch (e) {
-      print('Error reading config file: $e');
+      print('Error reading config/database: $e');
     }
-    // Fallback to default directory if config file not found or invalid
+    
+    // Fallback to default directory
     return 'E:${Platform.pathSeparator}Media${Platform.pathSeparator}jellyflix${Platform.pathSeparator}downloads';
+  }
+
+  // Add method to change download directory
+  static Future<void> setDownloadDirectory(String path) async {
+    var settings = DatabaseService('settings', SecureStorageService());
+    await settings.put('download_directory', path);
   }
 
   Future<void> downloadTranscodedStream(String streamUrl) async {

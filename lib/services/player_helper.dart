@@ -11,6 +11,7 @@ import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:jellyflix/services/download_service.dart';
 
 class PlayerHelper {
   Map<int, String> bitrateMap = BitRates().map;
@@ -304,8 +305,18 @@ class PlayerHelper {
     throw UnimplementedError();
   }
 
-  Future<void> initStream(int startTimeTicks, Timer? playbackTimer) {
-    throw UnimplementedError();
+  Future<void> initStream(int startTimeTicks, Timer? playbackTimer) async {
+    String streamUrl = playbackInfo.mediaSources![0].path ?? '';
+    
+    // Add check for downloaded content
+    if (streamUrl.startsWith('file://')) {
+      var downloadDir = await DownloadService.getDownloadDirectory();
+      streamUrl = streamUrl.replaceAll('~\\Documents', downloadDir);
+    }
+    
+    await player.open(Media(streamUrl,
+        start: Duration(microseconds: startTimeTicks ~/ 10)));
+    // ...rest of the method
   }
 
   Future<void> completedPlayback() async {

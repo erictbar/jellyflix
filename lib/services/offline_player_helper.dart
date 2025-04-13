@@ -4,6 +4,7 @@ import 'package:jellyflix/models/download_metadata.dart';
 import 'package:jellyflix/services/player_helper.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:tentacle/tentacle.dart';
+import 'package:jellyflix/services/download_service.dart';  // Add this import
 
 class OfflinePlayerHelper extends PlayerHelper {
   late int bitrate;
@@ -36,6 +37,13 @@ class OfflinePlayerHelper extends PlayerHelper {
   @override
   Future<void> initStream(int startTimeTicks, Timer? playbackTimer) async {
     String streamUrl = downloadMetadata.path!;
+    
+    // Add check for downloaded content path
+    if (streamUrl.contains('~\\Documents')) {
+      var downloadDir = await DownloadService.getDownloadDirectory();
+      streamUrl = streamUrl.replaceAll('~\\Documents', downloadDir);
+    }
+    
     player.open(
         Media(streamUrl, start: Duration(microseconds: startTimeTicks ~/ 10)));
     StreamSubscription? trackStream;
@@ -77,9 +85,15 @@ class OfflinePlayerHelper extends PlayerHelper {
     mediaStream =
         subtitles.firstWhere((element) => element.index == mediaStream.index);
     if (mediaStream.deliveryMethod == SubtitleDeliveryMethod.external_) {
+      // Update subtitle path if needed
+      var subtitleUrl = mediaStream.deliveryUrl!;
+      if (subtitleUrl.contains('~\\Documents')) {
+        var downloadDir = await DownloadService.getDownloadDirectory();
+        subtitleUrl = subtitleUrl.replaceAll('~\\Documents', downloadDir);
+      }
+      
       // load subtitle from file
-      SubtitleTrack externalSubtitle =
-          SubtitleTrack.uri(mediaStream.deliveryUrl!);
+      SubtitleTrack externalSubtitle = SubtitleTrack.uri(subtitleUrl);
       // external subtitles
       await player.setSubtitleTrack(externalSubtitle);
       isSubtitleEnabled = true;
