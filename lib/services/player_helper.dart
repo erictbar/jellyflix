@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:jellyflix/components/player_settings_dialog.dart';
 import 'package:jellyflix/models/bitrates.dart';
+import 'package:jellyflix/services/jfx_logger.dart';  // Add this import
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:tentacle/tentacle.dart';
