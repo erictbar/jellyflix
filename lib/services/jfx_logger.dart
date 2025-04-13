@@ -1,6 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 import 'package:file_saver/file_saver.dart';
+import 'package:jellyflix/services/download_service.dart';
+import 'package:universal_io/io.dart';
+import 'package:path/path.dart' show join;  // Add this import
 
 class JfxLogger {
   late Logger _logger;
@@ -61,10 +64,12 @@ class JfxLogger {
   Future<void> exportLog() async {
     _logger.i("Exporting log to file");
 
+    var downloadDir = await DownloadService.getDownloadDirectory();
     var logBytes = Uint8List.fromList(_memoryOutput.toString().codeUnits);
-    await FileSaver.instance.saveFile(
-        name:
-            "${_logFileName}_${DateTime.now().toIso8601String().replaceAll(":", "-")}$_logFileExtension",
-        bytes: logBytes);
+    var logFile = File(join(downloadDir, 
+        "${_logFileName}_${DateTime.now().toIso8601String().replaceAll(":", "-")}$_logFileExtension"));
+    
+    await logFile.writeAsBytes(logBytes);
+    _logger.i("Log exported to: ${logFile.path}");
   }
 }

@@ -321,17 +321,31 @@ class PlayerHelper {
   }
 
   Future<String> normalizeFilePath(String path) async {
+    var logger = JfxLogger();  // Add logger
     var downloadDir = await DownloadService.getDownloadDirectory();
+    
+    logger.info("Attempting to open file: $path");
+    logger.info("Current download directory: $downloadDir");
     
     // Handle different path formats
     if (path.startsWith('file://')) {
       path = path.substring(7);
+      logger.info("Removed file:// prefix: $path");
     }
     if (path.contains('~\\Documents')) {
       path = path.replaceAll('~\\Documents', downloadDir);
+      logger.info("Replaced ~\\Documents with download dir: $path");
     }
     if (path.contains('/Documents/')) {
       path = path.replaceAll('/Documents/', '${downloadDir}${Platform.pathSeparator}');
+      logger.info("Replaced /Documents/ with download dir: $path");
+    }
+    
+    // Check if file exists
+    if (await File(path).exists()) {
+      logger.info("File exists at path: $path");
+    } else {
+      logger.error("File not found at path: $path");
     }
     
     return path;
