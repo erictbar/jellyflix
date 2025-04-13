@@ -3,6 +3,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:jellyflix/components/download_item_tile.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/providers/download_provider.dart';
+import 'package:jellyflix/services/database_service.dart';
+import 'package:jellyflix/services/secure_storage_service.dart';
 
 class DownloadScreen extends HookConsumerWidget {
   const DownloadScreen({super.key});
@@ -30,6 +32,43 @@ class DownloadScreen extends HookConsumerWidget {
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.folder_outlined),
+            onPressed: () async {
+              var settings = DatabaseService('settings', SecureStorageService());
+              var currentPath = settings.get('download_directory') ?? 'Not set';
+              
+              if (context.mounted) {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Download Directory'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Current directory:'),
+                        Text(currentPath, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 16),
+                        Text('To change the download directory:'),
+                        const Text('1. Close the app'),
+                        const Text('2. Edit config.txt in the app directory'),
+                        const Text('3. Restart the app'),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                );
+              }
+            },
+          ),
+        ],
       ),
       body: FutureBuilder(
         future: ref.read(getDownloadsProvider),

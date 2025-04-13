@@ -169,12 +169,7 @@ class StreamPlayerHelper extends PlayerHelper {
   @override
   Future<void> initStream(int startTimeTicks, Timer? playbackTimer) async {
     String streamUrl = _apiService.getStreamUrl(playbackInfo);
-    
-    // Add check for downloaded content
-    if (streamUrl.startsWith('file://')) {
-      var downloadDir = await DownloadService.getDownloadDirectory();
-      streamUrl = streamUrl.replaceAll('~\\Documents', downloadDir);
-    }
+    streamUrl = await normalizeFilePath(streamUrl);
     
     await player.open(Media(streamUrl,
         httpHeaders: _apiService.headers,

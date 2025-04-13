@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' as intl;
-import 'package:jellyflix/components/player_settings_dialog.dart'
-    show PlayerSettingsDialog;
+import 'package:jellyflix/components/player_settings_dialog.dart';
 import 'package:jellyflix/models/bitrates.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:jellyflix/services/download_service.dart';
+import 'package:universal_io/io.dart';  // Add this import
 
 class PlayerHelper {
   Map<int, String> bitrateMap = BitRates().map;
@@ -309,10 +309,7 @@ class PlayerHelper {
     String streamUrl = playbackInfo.mediaSources![0].path ?? '';
     
     // Add check for downloaded content
-    if (streamUrl.startsWith('file://')) {
-      var downloadDir = await DownloadService.getDownloadDirectory();
-      streamUrl = streamUrl.replaceAll('~\\Documents', downloadDir);
-    }
+    streamUrl = await normalizeFilePath(streamUrl);
     
     await player.open(Media(streamUrl,
         start: Duration(microseconds: startTimeTicks ~/ 10)));
@@ -321,5 +318,22 @@ class PlayerHelper {
 
   Future<void> completedPlayback() async {
     throw UnimplementedError();
+  }
+
+  Future<String> normalizeFilePath(String path) async {
+    var downloadDir = await DownloadService.getDownloadDirectory();
+    
+    // Handle different path formats
+    if (path.startsWith('file://')) {
+      path = path.substring(7);
+    }
+    if (path.contains('~\\Documents')) {
+      path = path.replaceAll('~\\Documents', downloadDir);
+    }
+    if (path.contains('/Documents/')) {
+      path = path.replaceAll('/Documents/', '${downloadDir}${Platform.pathSeparator}');
+    }
+    
+    return path;
   }
 }

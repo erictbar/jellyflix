@@ -37,14 +37,9 @@ class OfflinePlayerHelper extends PlayerHelper {
   @override
   Future<void> initStream(int startTimeTicks, Timer? playbackTimer) async {
     String streamUrl = downloadMetadata.path!;
+    streamUrl = await normalizeFilePath(streamUrl);
     
-    // Add check for downloaded content path
-    if (streamUrl.contains('~\\Documents')) {
-      var downloadDir = await DownloadService.getDownloadDirectory();
-      streamUrl = streamUrl.replaceAll('~\\Documents', downloadDir);
-    }
-    
-    player.open(
+    await player.open(
         Media(streamUrl, start: Duration(microseconds: startTimeTicks ~/ 10)));
     StreamSubscription? trackStream;
     trackStream = player.stream.tracks.listen((event) {
